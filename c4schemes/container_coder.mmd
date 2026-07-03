@@ -1,0 +1,46 @@
+flowchart TD
+    classDef actor fill:#08427b,stroke:#000,color:#fff,stroke-width:2px;
+    classDef system fill:#1168bd,stroke:#000,color:#fff;
+    classDef container fill:#4DA0FF,stroke:#000,color:#fff;
+    classDef external fill:#999,stroke:#333,color:#fff;
+
+    subgraph group_internal_0[" "]
+        planner["📋 AI Planner<br/>[System]<br/>Discovery & SDD"]:::system
+    end
+
+    subgraph group_internal_1["💻 MASCode"]
+        runtime_core["⚙️ Agent Runtime Core<br/><br/>[LangGraph, Redis, Docker]<br/>Lifecycle management, Labs|Dev"]:::container
+        context_agent["🧠 Context Agent<br/>[LLM, RAG, Confluence]<br/>Docs search + tasks generator"]:::container
+        integrator_agent["🔗 Integrator Agent<br/>[LLM, RAG, Git]<br/>Repositories search + tasks checks"]:::container
+        api_agent["🏗️ API builder<br/>[LLM, YAML, Git]<br/>API contract generation"]:::container
+        bdd_agent["🧪 BDD builder<br/>[LLM, YAML, Git]<br/>Behave generator"]:::container
+        hitl["👤 HITL service<br/>[Mattermost, IDE]<br/>Approvals, risk management"]:::container
+        code_agent["⚡ Code Generator<br/>[LLM, Codex]<br/>Feature code generation"]:::container
+        review_agent["🔍 Review Agent (MoA)<br/>[LLM, Codex]<br/>Synthesis of the best solution"]:::container
+        ci_scripts["✅ CI Agent (Security-Gated)<br/>[LLM, Codex, Docker]<br/>Running tests"]:::container
+        critic_agent["🔄 Critic Loop Controller<br/>[LLM, Codex, Git, Confluence]<br/>Iterative edits"]:::container
+        pr_scripts["📦 PR<br/>[Git, Bamboo]<br/>Make pull request"]:::container
+
+    end
+
+    subgraph group_internal_2[" "]
+        governance["🛡️ Governance<br/>[System]<br/>Risk, Logging, Constraints"]:::system
+        archivist["🗄️ Archivist<br/>[System]<br/>Collect all data"]:::system
+        egress["🚪 Egress Proxy<br/>[System]<br/>Outgoing calls gateway"]:::system
+    end
+
+    planner --> runtime_core --> context_agent --> integrator_agent
+    integrator_agent --> api_agent --> bdd_agent --> hitl --> code_agent
+    code_agent --> review_agent --> ci_scripts --> critic_agent --> pr_scripts
+
+    critic_agent --> context_agent
+    pr_scripts <--> hitl
+    hitl --> context_agent
+
+    group_internal_1 -.-> governance
+    pr_scripts --> archivist
+    group_internal_1 -.-> egress
+
+    style group_internal_0 fill:none,stroke:none,stroke-width:0px;
+    style group_internal_1 stroke:#555,stroke-dasharray: 5 5,fill:#f9f9f9,fill-opacity:0.8;
+    style group_internal_2 fill:none,stroke:none,stroke-width:0px;

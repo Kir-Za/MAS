@@ -1,0 +1,62 @@
+flowchart TD
+    classDef actor fill:#08427b,stroke:#000,color:#fff,stroke-width:2px;
+    classDef system fill:#1168bd,stroke:#000,color:#fff;
+    classDef container fill:#4DA0FF,stroke:#000,color:#000;
+    classDef external fill:#999,stroke:#333,color:#fff;
+
+    subgraph group_internal_0[" "]
+        developer["👤 Developer"]:::actor
+        gateway["🌐 Gateway<br/>[System]"]:::system
+    end
+
+    subgraph ai_manager["🧠 AI Manager"]
+        style ai_manager stroke:#555,stroke-dasharray: 5 5,fill:#f9f9f9,fill-opacity:0.8;
+        subgraph group_internal_2[" "]
+            governance["🛡️ Governance<br/>[System]<br/>Risk, Logging, Constraints"]:::system
+            
+        end
+        subgraph group_internal_1[" "]
+            planner["📋 AI Planner<br/>[System]<br/>Discovery & SDD"]:::system
+            coder["💻 MASCode<br/>[System]<br/>Writing code"]:::system
+            archivist["🗄️ Archivist<br/>[System]<br/>Collect all data"]:::system
+            egress["🚪 Egress Proxy<br/>[System]<br/>Outgoing calls gateway"]:::system
+        end       
+    end
+
+    subgraph external["☁️ External Resources"]
+        style external stroke:#555,stroke-dasharray: 5 5,fill:#f9f9f9,fill-opacity:0.8;
+        direction RL
+        jira["📌 Jira<br/>[System]<br/>US tasks sync"]:::external
+        cicd["⚙️ Bamboo<br/>[System]<br/>CI/CD"]:::external
+        qdrant["🔍 Qdrant<br/>[System]<br/>Vector DB"]:::external
+        llm["🤖 GLM-5.1<br/>[System]<br/>Codex,LLM"]:::external
+        git["📂 Git / CI<br/>[System]<br/>Code, tests"]:::external
+        vault["🔐 Vault<br/>[System]<br/>Secrets"]:::external
+        mattermost["💬 Mattermost<br/>[System]<br/>Escalation"]:::external
+        redis["📦 Redis<br/>[System]<br/>State & checkpoints"]:::external
+        otel["📊 OpenTelemetry<br/>[System]<br/>Tracing & metrics"]:::external
+    end
+
+    jira ~~~ cicd ~~~ qdrant ~~~ llm ~~~ git ~~~ vault ~~~ mattermost ~~~ redis ~~~ otel
+
+    group_internal_1 ~~~ group_internal_2
+
+    developer --> gateway
+    gateway --> planner
+    planner --> coder
+    coder --> archivist
+    
+    governance -.-> planner
+    governance -.-> coder
+    governance -.-> archivist
+    governance -.-> egress
+ 
+    planner --> egress
+    archivist --> egress
+    coder --> egress
+
+    egress --> external
+
+    style group_internal_0 fill:none,stroke:none,stroke-width:0px;
+    style group_internal_1 fill:none,stroke:none,stroke-width:0px;
+    style group_internal_2 fill:none,stroke:none,stroke-width:0px;
