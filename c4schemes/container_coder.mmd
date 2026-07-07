@@ -19,7 +19,7 @@ flowchart TD
         code_agent["⚡ Mixture of agents code generator<br/>[LLM, Codex]<br/>Feature code generation"]:::container
         review_agent["🔍 Review Agent (MoA)<br/>[LLM, Codex]<br/>Analyze the options, evaluate the quality, and synthesize the final code by either choosing the best option or combining the strengths of different options (Mixture-of-Agents)"]:::container
         critic_agent["🔄 Critic Loop Controller<br/>[LLM, Codex, Git, Confluence]<br/>It implements the Reflexion. pattern. It receives the results from the CI Agent, analyzes the errors, and decides whether to repeat the generation with a refined context, escalate to a human, or consider the task successfully completed."]:::container
-        ci_scripts["✅ Critic Loop Controller<br/>[LLM, Codex, Docker]<br/>Running tests"]:::container       
+        ci_scripts["✅ CI scripts<br/>[LLM, Codex, Docker]<br/>Running tests"]:::container       
         pr_scripts["📦 PR<br/>[Git, Bamboo]<br/>Make pull request"]:::container
 
     end
