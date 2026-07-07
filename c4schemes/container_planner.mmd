@@ -10,8 +10,8 @@ flowchart TD
     end
 
     subgraph group_internal_1["📋 AI Planner"]
-        discovery["🔍 Discovery service<br/>[LangGraph, LLM]<br/>Hypotheses, agent applicability"]:::container
-        sdd["📄 SDD service<br/>[LangGraph, LLM]<br/>Brief, structuring"]:::container
+        discovery["🔍 Discovery service<br/>[LangGraph, LLM]<br/>Creating business scenarios, developing acceptance conditions, searching for templates, and searching for similar tasks."]:::container
+        sdd["📄 SDD service<br/>[LangGraph, LLM]<br/>Generation of a pair of atomic US with functional and non-functional requirements, a full set of edge cases, identification of integration risks, security restrictions, and collection of all artifacts in SDD."]:::container
         hitl["👤 HITL service<br/>[Mattermost, IDE]<br/>Approvals, risk management"]:::container
     end
 
@@ -22,8 +22,8 @@ flowchart TD
     end
 
     developer --> gateway
-
     discovery --> sdd --> hitl
+    hitl --> discovery
     
     gateway --> discovery
     group_internal_1 -.-> governance

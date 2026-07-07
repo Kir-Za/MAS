@@ -9,16 +9,17 @@ flowchart TD
     end
 
     subgraph group_internal_1["💻 MASCode"]
-        runtime_core["⚙️ Agent Runtime Core<br/><br/>[LangGraph, Redis, Docker]<br/>Lifecycle management, Labs|Dev"]:::container
-        context_agent["🧠 Context Agent<br/>[LLM, RAG, Confluence]<br/>Docs search + tasks generator"]:::container
-        integrator_agent["🔗 Integrator Agent<br/>[LLM, RAG, Git]<br/>Repositories search + tasks checks"]:::container
-        api_agent["🏗️ API builder<br/>[LLM, YAML, Git]<br/>API contract generation"]:::container
-        bdd_agent["🧪 BDD builder<br/>[LLM, YAML, Git]<br/>Behave generator"]:::container
+        runtime_core["⚙️ Agent Runtime Core<br/><br/>[LangGraph, Redis, Docker]<br/>Preparing the execution environment, creating temporary branches in repositories, and manipulating Lab stands."]:::container
+        context_agent["🧠 Context Agent<br/>[LLM, RAG, Confluence]<br/>Turn the SDD into a detailed implementation plan."]:::container
+        integrator_agent["🔗 Integrator Agent<br/>[LLM, RAG, Git]<br/>It collects the current context of the codebase, taking into account the existing architecture, signatures, imports, and project patterns, so that the contract and code are designed based on the actual state of the codebase."]:::container
+        api_agent["🏗️ API builder<br/>[LLM, YAML, Git]<br/>design a single API contract that combines all User Stories, takes into account existing interfaces, and does not violate architectural invariants."]:::container
+        bdd_agent["🧪 BDD builder<br/>[LLM, YAML, Git]<br/>Generates BDD tests based on features and an API contract. Create an executable specification that will serve as both documentation and acceptance tests. BDD tests are written before or in parallel with the code (Shift-Left Testing)."]:::container
         hitl["👤 HITL service<br/>[Mattermost, IDE]<br/>Approvals, risk management"]:::container
-        code_agent["⚡ Code Generator<br/>[LLM, Codex]<br/>Feature code generation"]:::container
-        review_agent["🔍 Review Agent (MoA)<br/>[LLM, Codex]<br/>Synthesis of the best solution"]:::container
-        ci_scripts["✅ CI Agent (Security-Gated)<br/>[LLM, Codex, Docker]<br/>Running tests"]:::container
-        critic_agent["🔄 Critic Loop Controller<br/>[LLM, Codex, Git, Confluence]<br/>Iterative edits"]:::container
+        code_plan_agent["⚡ Code Planner<br/>[LLM, Codex]<br/>Description of the code generation plan, ADR."]:::container
+        code_agent["⚡ Mixture of agents code generator<br/>[LLM, Codex]<br/>Feature code generation"]:::container
+        review_agent["🔍 Review Agent (MoA)<br/>[LLM, Codex]<br/>Analyze the options, evaluate the quality, and synthesize the final code by either choosing the best option or combining the strengths of different options (Mixture-of-Agents)"]:::container
+        critic_agent["🔄 Critic Loop Controller<br/>[LLM, Codex, Git, Confluence]<br/>It implements the Reflexion. pattern. It receives the results from the CI Agent, analyzes the errors, and decides whether to repeat the generation with a refined context, escalate to a human, or consider the task successfully completed."]:::container
+        ci_scripts["✅ Critic Loop Controller<br/>[LLM, Codex, Docker]<br/>Running tests"]:::container       
         pr_scripts["📦 PR<br/>[Git, Bamboo]<br/>Make pull request"]:::container
 
     end
@@ -33,9 +34,10 @@ flowchart TD
     integrator_agent --> api_agent --> bdd_agent --> hitl --> code_agent
     code_agent --> review_agent --> ci_scripts --> critic_agent --> pr_scripts
 
-    critic_agent --> context_agent
+    critic_agent --> hitl
     pr_scripts <--> hitl
     hitl --> context_agent
+    code_plan_agent <--> hitl
 
     group_internal_1 -.-> governance
     pr_scripts --> archivist
