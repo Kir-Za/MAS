@@ -24,11 +24,12 @@ flowchart TD
 
     end 
 
-    gateway --> intake --> retriever --> brief --> brief_critic --> hitl --> adapt --> coherence --> sdd
+    gateway --> intake --> retriever --> brief --> brief_critic --> hitl
+    hitl -->|brief + pattern_refs +anti_patterns +code_context| adapt --> coherence --> sdd
     intent_mem <--> retriever
     coherence --> intent_mem
     applic --> coherence
-    hitl --> applic
+    hitl -->|approved_brief_bundle| applic
     hitl --> intake
     hitl <--> coherence
     
