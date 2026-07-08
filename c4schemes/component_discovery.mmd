@@ -26,6 +26,7 @@ flowchart TD
 
     gateway --> intake --> retriever --> brief --> brief_critic --> hitl --> adapt --> coherence --> sdd
     intent_mem <--> retriever
+    coherence --> intent_mem
     applic --> coherence
     hitl --> applic
     hitl --> intake

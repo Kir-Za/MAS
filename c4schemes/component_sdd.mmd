@@ -1,0 +1,37 @@
+flowchart TD
+    classDef actor fill:#08427b,stroke:#000,color:#fff,stroke-width:2px;
+    classDef system fill:#1168bd,stroke:#000,color:#fff;
+    classDef container fill:#4DA0FF,stroke:#000,color:#fff;
+    classDef external fill:#999,stroke:#333,color:#fff;
+
+    gateway["🌐 Gateway<br/>[System]"]:::system
+
+    subgraph group_internal_0["📋 AI Planner"]
+
+    discovery["🔍 Discovery service"]:::container
+
+    subgraph group_internal_1["📄 SDD service"]
+            us_gen["📝 User Stories Generator<br/>[LLM, Jira]<br/>Decomposition of the previously received brief into US/tasks based on the task implementation strategy."]:::container
+            edge_gen["⚠️ Edge Cases Generator<br/>[LLM, Redis]<br/>Generation of standard edge cases based on a checklist (8+ types: empty_request, timeout, rate_limit, race_condition, invalid_format, not_found, unauthorized, large_payload); generation of domain-specific edge cases; prioritization based on criticality."]:::container
+            api_gen["🏗️ API Contract Generator<br/>[LLM, OpenAPI]<br/>Generating an API list and analyzing the risks of implementing them in relation to individual modules in the system."]:::container
+            risk_analyzer["🚨 Integration Risks Analyzer<br/>[LLM, Neo4j, Qdrant]<br/>Analysis of dependencies between modules; identification of route conflicts; assessment of the impact on existing services; formulation of mitigation strategies; and classification of the identified risks."]:::container
+            guardrails["🛡️ Codified Guardrails Generator<br/>[LLM, Redis, Qdrant]<br/>Definition of security restrictions; compliance restrictions; restrictions on the use of data (personal data, storage, localization); permission hierarchy — explicitly marked as nominal/standard, the final value corresponds to the Governance R0-R5 hierarchy in runtime."]:::container
+            hitl["👤 HITL service<br/>[Mattermost, IDE]<br/>Approvals, risk management"]:::container
+            eval_plan["✅ Eval Plan Generator<br/>[LLM, Redis, Qdrant]<br/>what the system should and should not do; which modules could be broken by the new code; running the reference task and measuring the agent's degradation; under what conditions should it escalate to a human; a single repository"]:::container
+            assembler["📦 SDD Assembler<br/>[Python, LangGraph]<br/>Structuring all artifacts into sections; checking completeness; creating and versioning SDD"]:::container
+            judge["👁️ Independent Quality Judge<br/>[LLM, LangGraph]<br/>Quality assessment of US, API contract, and edge cases based on a fixed rubric; assessment without access to the generator's reasoning/prompts (only the final artifacts); and the creation of a structured assessment rather than a free-form one."]:::container
+            diff_reporter["📋 Diff Reporter<br/>[LLM, Redis, Qdrant]<br/>Comparison of the SDD with the previous version (based on the sdd_version from the database); summarization of changes in natural language; highlighting changes that affect previously approved sections."]:::container    
+        end
+    end
+    
+    coder["💻 MASCode<br/>[System]<br/>Writing code"]:::system
+
+    gateway --> discovery --> us_gen --> edge_gen --> api_gen --> risk_analyzer --> guardrails
+    guardrails --> eval_plan --> assembler --> judge --> hitl --> diff_reporter --> coder
+    diff_reporter --> |Intent Memory<br/> update| discovery
+
+    hitl <--> us_gen
+    hitl <--> eval_plan
+
+    style group_internal_0 stroke:#555,stroke-dasharray: 5 5,fill:#f9f9f9,fill-opacity:0.8;
+    style group_internal_1 stroke:#555,stroke-dasharray: 5 5,fill:#f9f9f9,fill-opacity:0.8;
