@@ -1,0 +1,35 @@
+flowchart TD
+    classDef actor fill:#08427b,stroke:#000,color:#fff,stroke-width:2px;
+    classDef system fill:#1168bd,stroke:#000,color:#fff;
+    classDef container fill:#4DA0FF,stroke:#000,color:#000;
+    classDef external fill:#999,stroke:#333,color:#fff;
+
+    developer["👤 Developer"]:::actor
+    gateway["🌐 Gateway<br/>[System]"]:::system
+
+    subgraph group_internal_0["🧠 AI Crawler"]
+        scheduler["📋Planner<br/>[System]<br/>Configuration of data collection frequency and conditions, and data sources."]:::system
+        rag_collector["📦 RAG collector<br/>[System]<br/>Filling the vector database."]:::system
+        graph_collector["🕸️ Graph collector<br/>[System]<br/>Filling the graph database."]:::system
+        egress["🚪 Egress Proxy<br/>[System]<br/>Outgoing calls gateway"]:::system
+    end
+
+    subgraph group_external_1[" "]
+        jira["📌 Jira<br/>[System]<br/>US tasks sync"]:::external
+        git["📂 Git / CI<br/>[System]<br/>Code, tests"]:::external
+        mattermost["💬 Mattermost<br/>[System]<br/>Escalation"]:::external
+        redis["📦 Redis<br/>[System]<br/>State & checkpoints"]:::external
+    end
+
+    developer --> gateway --> scheduler
+    scheduler --> rag_collector --> egress
+    scheduler --> graph_collector --> egress
+
+    egress --> jira
+    egress --> git
+    egress --> mattermost
+    egress --> redis
+
+    style group_internal_0 stroke:#555,stroke-dasharray: 5 5,fill:#f9f9f9,fill-opacity:0.8;
+    style group_external_1 stroke:#555,stroke-dasharray: 5 5,fill:#f9f9f9,fill-opacity:0.8;
+    style group_internal_2 fill:none,stroke:none,stroke-width:0px;

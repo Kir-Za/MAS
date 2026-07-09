@@ -1,0 +1,19 @@
+flowchart TD
+    classDef actor fill:#08427b,stroke:#000,color:#fff,stroke-width:2px;
+    classDef system fill:#1168bd,stroke:#000,color:#fff;
+    classDef container fill:#4DA0FF,stroke:#000,color:#fff;
+    classDef external fill:#999,stroke:#333,color:#fff;
+
+    subgraph group_internal_0["📦 RAG collector"]
+        chunking["Chunking<br/>[LLM,LangGraph,BGE]<br/>Chunking, duplicate checking, metadata generation, enrichment, and vectorization."]:::container
+        subgraph group_internal_1["Writer"]
+            reconcile["Reconcile versions<br/>[Qdrant,LangGraph]<br/>When reloading the same document within the same version, replace the old chunks without creating duplicates."]:::container
+            linker["Lineage Linker<br/>[Qdrant,LangGraph]<br/>Record the evolutionary relationship of a chunk with its predecessor in the previous version."]:::container
+            upsert["Upsert<br/>[Qdrant,LangGraph]<br/>Batch loading of embeddings and metadata in Qdrant."]:::container
+        end
+    end
+
+    chunking --> reconcile --> linker --> upsert
+
+    style group_internal_0 stroke:#555,stroke-dasharray: 5 5,fill:#f9f9f9,fill-opacity:0.8;
+    style group_internal_1 stroke:#555,stroke-dasharray: 5 5,fill:#f9f9f9,fill-opacity:0.8;
