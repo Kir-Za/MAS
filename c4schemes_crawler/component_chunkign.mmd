@@ -5,6 +5,7 @@ flowchart TD
     classDef external fill:#999,stroke:#333,color:#fff;
 
     subgraph group_internal_0["📦 RAG collector"]
+        direction TB
         prepare["Primary processing<br/>[LLM,LangGraph,Redis]<br/>Determining the type of document, whether a full copy is available in the database, and evaluating its quality."]:::container
         subgraph group_internal_1["Chunking"]
             chunk["Chunker<br/>[LangGraph]<br/>Semantic/structural splitting based on element boundaries, optimized for BGE-M3."]:::container

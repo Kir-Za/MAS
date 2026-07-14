@@ -5,6 +5,7 @@ flowchart TD
     classDef external fill:#999,stroke:#333,color:#fff;
 
     subgraph group_internal_0["📦 RAG collector"]
+        direction TB
         chunking["Chunking<br/>[LLM,LangGraph,BGE]<br/>Chunking, duplicate checking, metadata generation, enrichment, and vectorization."]:::container
         subgraph group_internal_1["Writer"]
             reconcile["Reconcile versions<br/>[Qdrant,LangGraph]<br/>When reloading the same document within the same version, replace the old chunks without creating duplicates."]:::container

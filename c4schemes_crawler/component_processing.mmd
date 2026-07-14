@@ -5,6 +5,7 @@ flowchart TD
     classDef external fill:#999,stroke:#333,color:#fff;
 
     subgraph group_internal_0["📦 RAG collector"]
+        direction TB
         scheduler["📋Planner<br/>[System]<br/>"]:::system
         subgraph group_internal_1["Primary processing"]
             detect["Type detector<br/>[LangGraph]<br/>Define a MIME type/format to select a partitioning strategy."]:::container
