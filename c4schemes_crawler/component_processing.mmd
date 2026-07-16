@@ -8,8 +8,7 @@ flowchart TD
         direction TB
         scheduler["📋Planner<br/>[System]<br/>"]:::system
         subgraph group_internal_1["Primary processing"]
-            detect["Type detector<br/>[LangGraph]<br/>Define a MIME type/format to select a partitioning strategy."]:::container
-            exact_dedup["Dedup checker<br/>[LangGraph,Redis]<br/>Calculating the SHA-256 of a raw file; searching for uniqueness in the document hash repository."]:::container
+            detect["Type detector<br/>[LangGraph]<br/>Define a type/format to select a partitioning strategy."]:::container
             partition["Partition<br/>[LangGraph]<br/>Convert a document of any format into a unified list of structured elements."]:::container
             quality["Assess quality<br/>[LLM,LangGraph]<br/>Evaluation of structural integrity, completeness of extraction, and linguistic consistency."]:::container
             hitl["👤 HITL service<br/>[Mattermost, IDE]<br/>Approvals, risk management"]:::container
@@ -18,7 +17,7 @@ flowchart TD
     end
 
     scheduler --> detect
-    detect --> exact_dedup --> partition --> quality
+    detect --> partition --> quality
     quality -->|"Low-quality documents/duplicates for manual review"| hitl
     quality --> chunking
 
