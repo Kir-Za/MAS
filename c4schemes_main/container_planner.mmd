@@ -1,0 +1,37 @@
+flowchart TD
+    classDef actor fill:#08427b,stroke:#000,color:#fff,stroke-width:2px;
+    classDef system fill:#1168bd,stroke:#000,color:#fff;
+    classDef container fill:#4DA0FF,stroke:#000,color:#fff;
+    classDef external fill:#999,stroke:#333,color:#fff;
+
+    subgraph group_internal_0[" "]
+        developer["👤 Developer"]:::actor
+        gateway["🌐 Gateway<br/>[System]"]:::system
+    end
+
+    subgraph group_internal_1["📋 AI Planner"]
+        discovery["🔍 Discovery service<br/>[LangGraph, LLM]<br/>Creating business scenarios, developing acceptance conditions, searching for templates, and searching for similar tasks."]:::container
+        sdd["📄 SDD service<br/>[LangGraph, LLM]<br/>Generation of a pair of atomic US with functional and non-functional requirements, a full set of edge cases, identification of integration risks, security restrictions, and collection of all artifacts in SDD."]:::container
+        hitl["👤 HITL service<br/>[Mattermost, IDE]<br/>Approvals, risk management"]:::container
+    end
+
+    subgraph group_internal_2[" "]
+        governance["🛡️ Governance<br/>[System]<br/>Risk, Logging, Constraints"]:::system
+        coder["💻 MASCode<br/>[System]<br/>Writing code"]:::system
+        egress["🚪 Egress Proxy<br/>[System]<br/>Outgoing calls gateway"]:::system
+    end
+
+    developer --> gateway
+    discovery --> sdd --> hitl
+    hitl --> discovery
+    
+    gateway --> discovery
+    group_internal_1 -.-> governance
+    group_internal_1 --> coder
+    group_internal_1 -.-> egress
+
+    hitl ~~~ group_internal_2
+
+    style group_internal_0 fill:none,stroke:none,stroke-width:0px;
+    style group_internal_1 stroke:#555,stroke-dasharray: 5 5,fill:#f9f9f9,fill-opacity:0.8;
+    style group_internal_2 fill:none,stroke:none,stroke-width:0px;

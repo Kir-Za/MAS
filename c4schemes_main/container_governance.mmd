@@ -1,0 +1,47 @@
+flowchart TD
+    classDef actor fill:#08427b,stroke:#000,color:#fff,stroke-width:2px;
+    classDef system fill:#1168bd,stroke:#000,color:#fff;
+    classDef container fill:#4DA0FF,stroke:#000,color:#fff;
+    classDef external fill:#999,stroke:#333,color:#fff;
+
+    subgraph group_internal_0[" "]
+        planner["📋 AI Planner<br/>[System]<br/>Discovery & SDD"]:::system
+        coder["💻 MASCode<br/>[System]<br/>Writing code"]:::system
+        archivist["🗄️ Archivist<br/>[System]<br/>Collect all data"]:::system
+    end
+
+    subgraph group_internal_1["🛡️ Governance"]
+        policy_hook["🚦 Policy Hook<br/>[LangGraph, Git, HTTPS]<br/>The Enforcement contour that implements the permission/policy dimension. The rules are embedded in the agent's execution traffic, and are not checked after the fact. Each agent's action must go through pre-action and post-action checks before and after execution."]:::container
+        guardian_agent["🛡️ Guardian Agent<br/>[LangGraph, LLM, LangFuse]<br/>Behavioral supervision of other agents. Unlike Policy Hook Bus, which checks formal rules (can/cannot), Guardian Agent analyzes the semantics of behavior: whether the agent is trying to circumvent restrictions, whether it exhibits abnormal behavior, and whether it escalates uncertain situations correctly."]:::container
+        hitl["👤 HITL service<br/>[Mattermost, IDE]<br/>Approvals, risk management"]:::container
+        eval_registry["📊 Eval Registry<br/>[LangGraph, Git, HTTPS]<br/>A centralized repository and management system for evaluation tests (evals). Each eval is a standardized test scenario with an expected result that is applied to an agent at different stages of its lifecycle."]:::container
+        explain_agent["💡 Explainability Layer<br/>[LangGraph, LLM]<br/>Generates structured explanations for R2+ agent actions. This is the transparency of the LLM's 'black box' for compliance and human oversight. Each explanation is not free text but a typed object."]:::container
+        audit_log["📝 Append-only Audit Log<br/>[LangFuse, HTTPS, S3]<br/>Log"]:::container
+        r_scripts["🔒 R0-R5 Ladder<br/>[LangGraph, HTTPS, Git]<br/>Determines the agent's level of autonomy for each action. Adaptive ladder: the nominal R-level from SDD is recalculated at runtime based on the triad of criticality × risk × complexity."]:::container
+    end
+
+    subgraph group_internal_2[" "]
+        egress["🚪 Egress Proxy<br/>[System]<br/>Outgoing calls gateway"]:::system
+    end
+
+    planner --> policy_hook
+    coder --> policy_hook
+    archivist --> policy_hook
+
+    policy_hook <--> guardian_agent
+    policy_hook <--> explain_agent
+    policy_hook <--> r_scripts
+    guardian_agent <--> eval_registry
+    hitl <--> guardian_agent
+
+    guardian_agent --> audit_log
+    explain_agent --> audit_log
+    r_scripts --> audit_log
+
+    group_internal_1 --> egress
+
+    audit_log ~~~ group_internal_2
+
+    style group_internal_0 fill:none,stroke:none,stroke-width:0px;
+    style group_internal_1 stroke:#555,stroke-dasharray: 5 5,fill:#f9f9f9,fill-opacity:0.8;
+    style group_internal_2 fill:none,stroke:none,stroke-width:0px;

@@ -1,0 +1,27 @@
+flowchart TD
+    classDef actor fill:#08427b,stroke:#000,color:#fff,stroke-width:2px;
+    classDef system fill:#1168bd,stroke:#000,color:#fff;
+    classDef container fill:#4DA0FF,stroke:#000,color:#fff;
+    classDef external fill:#999,stroke:#333,color:#fff;
+
+    subgraph group_internal_0["📦 RAG collector"]
+        direction TB
+        prepare["Primary processing<br/>[LLM,LangGraph,Redis]<br/>Determining the type of document, whether a full copy is available in the database, and evaluating its quality."]:::container
+        subgraph group_internal_1["Chunking"]
+            chunk["Chunker<br/>[LangGraph]<br/>Semantic/structural splitting based on element boundaries, optimized for BGE-M3."]:::container
+            chunk_dedup["Chunk dedup check<br/>[Qdrant,LangGraph]<br/>Detect partial duplication at the fragment level (copy-paste between documents/versions)."]:::container
+            lineage["Lineage Resolver<br/>[LangGraph]<br/>Distinguish a true double from the evolution of a single feature between product versions."]:::container
+            enrich["Metadata enrich<br/>[LangGraph]<br/>Add deterministic metadata to each chunk for search and filtering in Qdrant."]:::container
+            llm_enrich["Context enrich<br/>[LangGraph,LLM]<br/>Generating a contextual title for each chunk based on the full document."]:::container
+            embed["Embed<br/>[BGE-M3]<br/>Generating a dense vector (1024d) and a sparse representation in a single model call for subsequent hybrid search."]:::container
+            hitl["👤 HITL service<br/>[Mattermost, IDE]<br/>Approvals, risk management"]:::container
+        end
+        writer["Writer<br/>[LangGraph,Qdrant]<br/>Recording data based on the chunk's lifecycle."]:::container
+    end
+
+    prepare --> chunk --> chunk_dedup --> lineage --> enrich --> llm_enrich -->embed
+    embed --> writer
+    lineage -->|"Resolve ambiguous lineage cases"|hitl
+
+    style group_internal_0 stroke:#555,stroke-dasharray: 5 5,fill:#f9f9f9,fill-opacity:0.8;
+    style group_internal_1 stroke:#555,stroke-dasharray: 5 5,fill:#f9f9f9,fill-opacity:0.8;

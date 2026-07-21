@@ -1,0 +1,28 @@
+flowchart TD
+    classDef actor fill:#08427b,stroke:#000,color:#fff,stroke-width:2px;
+    classDef system fill:#1168bd,stroke:#000,color:#fff;
+    classDef container fill:#4DA0FF,stroke:#000,color:#fff;
+    classDef external fill:#999,stroke:#333,color:#fff;
+
+    
+
+    subgraph group_internal_0["🧠 AI Crawler"]
+        direction TB
+        scheduler["📋Planner<br/>[System]<br/>Configuration of data collection frequency and conditions, and data sources."]:::system
+        subgraph group_internal_1["🕸️ Graph collector"]
+            extractor["🔌 Source Extractor<br/>[Git, LLM, AST parser]<br/>Extract code semantics (modules, endpoints, dependencies); extract entities and solutions (ADRs, risks, patterns); link User Stories/tasks to features and modules; and record which modules are affected by a specific release."]:::container
+            normalizer["🔗 Normalization of data<br/>[BGE-M3, LangGraph]<br/>Reduce entity candidates from different extractors to the same stable graph nodes. Ensure that each fact can be traced back to its origin."]:::container
+            conflict_detector["⚖️ Conflict Detector<br/>[LangGraph, Neo4j]<br/>Detecting conflicts of facts."]:::container
+            hitl["👤 HITL service<br/>[Mattermost, IDE]<br/>Approvals, risk management"]:::container
+            writer["✍️ Graph Writer<br/>[LangGraph, LLM, Neo4j]<br/>Determine whether the incoming fact is new/confirms an existing fact/conflicts with the current fact, resolve conflicts, and write the fact to Neo4j."]:::container
+            retention["🗑️ Retention & Deletion Gate<br/>[LangGraph, Neo4j]<br/>Detect entities whose source no longer confirms their existence and delete them."]:::container
+        end
+        egress["🚪 Egress Proxy<br/>[System]<br/>Outgoing calls gateway"]:::system
+    end
+
+    scheduler --> extractor --> normalizer --> conflict_detector --> writer --> egress
+    conflict_detector <--> hitl
+    extractor --> retention
+
+    style group_internal_0 stroke:#555,stroke-dasharray: 5 5,fill:#f9f9f9,fill-opacity:0.8;
+    style group_internal_1 stroke:#555,stroke-dasharray: 5 5,fill:#f9f9f9,fill-opacity:0.8;

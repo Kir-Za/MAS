@@ -1,0 +1,35 @@
+flowchart TD
+    classDef actor fill:#08427b,stroke:#000,color:#fff,stroke-width:2px;
+    classDef system fill:#1168bd,stroke:#000,color:#fff;
+    classDef container fill:#4DA0FF,stroke:#000,color:#fff;
+    classDef external fill:#999,stroke:#333,color:#fff;
+
+    subgraph group_internal_0[" "]
+        coder["💻 MASCode<br/>[System]<br/>Writing code"]:::system
+    end
+
+    subgraph group_internal_1["🗄️ Archivist"]
+        context_assembler["🔍 Diff Analyzer<br/>[LangGraph, Git]<br/>It takes a raw git diff from a completed PR and turns it into a structured description of the changes: which features are added, which are modified, which modules are affected, and what type of change it is (feat, fix, refactor)."]:::container
+        reasoning_agent["📋 Reasoning Extractor<br/>[LLM, Codex]<br/>Conducts an audit of the session and extracts key decision-making moments. Prepares data for creating ADRs and documentation."]:::container
+        document_agent["📝 Documentation Agent<br/>[LLM, Codex]<br/>Converts structured diff and extracted reasoning into human-readable documentation. It generates four types of artifacts: function README, ADR, OpenAPI specification update, and CHANGELOG entry."]:::container
+        pattern_scripts["✅ Pattern Quality Gate<br/>[LLM, Codex]<br/>A control point that verifies that the proposed pattern is indeed reusable, does not duplicate existing patterns, has all the necessary metadata, and has passed a security review."]:::container
+        hitl["👤 HITL service<br/>[Mattermost, IDE]<br/>Approvals, risk management"]:::container
+        publisher_scripts["📚 Library Updater<br/>[Confluence, Git, Qdrant]<br/>Рerforms the final registration of a pattern in the Pattern Library after passing all quality gates."]:::container
+    end
+
+    subgraph group_internal_2[" "]
+        governance["🛡️ Governance<br/>[System]<br/>Risk, Logging, Constraints"]:::system
+        egress["🚪 Egress Proxy<br/>[System]<br/>Outgoing calls gateway"]:::system
+    end
+
+    coder --> context_assembler --> reasoning_agent --> document_agent
+    document_agent <--> pattern_scripts <--> hitl <--> document_agent
+    hitl --> publisher_scripts
+
+    publisher_scripts ~~~ egress
+    group_internal_1 -.-> governance    
+    group_internal_1 -.-> egress
+
+    style group_internal_0 fill:none,stroke:none,stroke-width:0px;
+    style group_internal_1 stroke:#555,stroke-dasharray: 5 5,fill:#f9f9f9,fill-opacity:0.8;
+    style group_internal_2 fill:none,stroke:none,stroke-width:0px;

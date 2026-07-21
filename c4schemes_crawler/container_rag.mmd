@@ -1,0 +1,30 @@
+flowchart TD
+    classDef actor fill:#08427b,stroke:#000,color:#fff,stroke-width:2px;
+    classDef system fill:#1168bd,stroke:#000,color:#fff;
+    classDef container fill:#4DA0FF,stroke:#000,color:#fff;
+    classDef external fill:#999,stroke:#333,color:#fff;
+    
+    
+    subgraph group_internal_0["🧠 AI Crawler"]
+        scheduler["📋Planner<br/>[System]<br/>"]:::system
+        direction TB
+        subgraph group_internal_1[" "]
+            prepare["Primary processing<br/>[LLM,LangGraph,Redis]<br/>Determining the type of document's content, whether a full copy is available in the database, and evaluating its quality."]:::container
+            hitl["👤 HITL service<br/>[Mattermost, IDE]<br/>Approvals, risk management"]:::container
+            chunking["Chunking<br/>[LLM,LangGraph,BGE]<br/>Chunking, duplicate checking, metadata generation, enrichment, and vectorization."]:::container
+            writer["Writer<br/>[LangGraph,Qdrant]<br/>Recording data based on the chunk's lifecycle."]:::container
+        end
+
+        egress["🚪 Egress Proxy<br/>[System]<br/>Outgoing calls gateway"]:::system
+
+    end
+
+    scheduler --> prepare --> chunking --> writer
+    hitl <--> prepare
+
+    
+    group_internal_1 --> egress
+    writer ~~~ egress
+
+    style group_internal_0 stroke:#555,stroke-dasharray: 5 5,fill:#f9f9f9,fill-opacity:0.8;
+    style group_internal_1 stroke:#555,stroke-dasharray: 5 5,fill:#f9f9f9,fill-opacity:0.8;

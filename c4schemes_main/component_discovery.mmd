@@ -1,0 +1,37 @@
+flowchart TD
+    classDef actor fill:#08427b,stroke:#000,color:#fff,stroke-width:2px;
+    classDef system fill:#1168bd,stroke:#000,color:#fff;
+    classDef container fill:#4DA0FF,stroke:#000,color:#fff;
+    classDef external fill:#999,stroke:#333,color:#fff;
+
+    gateway["🌐 Gateway<br/>[System]"]:::system
+
+    subgraph group_internal_0["📋 AI Planner"]
+
+        subgraph group_internal_1["🔍 Discovery service"]
+            intake["🎯 Intake Normalizer<br/>[LangGraph, LLM]<br/>Highlight the intent, entity, and context of the request, and check if the task has duplicate sessions."]:::container
+            retriever["🔍 Context & Pattern Retriever<br/>[Qdrant, BGE-M3, LLM]<br/>Search by ADR sessions, search by product document, and search by semantic code base."]:::container
+            intent_mem["🧠 Intent Memory<br/>[Redis + Qdrant]<br/>Session RAM is formed from the history of recent user interactions, successful solutions to similar tasks in the product history, and user patterns."]:::container
+            brief["📰 Brief engine (N candidate)<br/>[LLM, LangGraph]<br/>Formulating several variants of brief descriptions with different accents. The boundaries of applicability should be defined for each one."]:::container
+            brief_critic["⚖️ Brief Selector/Critic<br/>[LLM, LangGraph]<br/>Comparative evaluation of candidates based on criteria (value clarity, retrieval context compliance, and absence of conflicts with anti-patterns); synthesis of the final version (which may combine elements from different candidates, Mixture-of-Agents style); and recording the rationale for the audit selection."]:::container
+            hitl["👤 HITL service<br/>[Mattermost, IDE]<br/>Approvals, risk management"]:::container
+            adapt["🔀 Adaptation Decision Engine<br/>[LLM, Neo4j, Redis]<br/>Analysis of the relationship between entities, services, interface components, and databases. Search for redundancy, duplication, and suggestions for adapting the system beyond the specified task."]:::container
+            applic["🏷️ Agent Applicability Engine<br/>[LLM, Redis]<br/>Classification of tasks based on the level of agent autonomy and the complexity and uncertainty of the task."]:::container
+            coherence["🔗 Coherence Checker<br/>[Redis, LLM]<br/>Coordination of proposals for adapting the solution and the acceptable risks of the selected level of agent autonomy."]:::container
+        end
+
+    sdd["📄 SDD service<br/>[LangGraph, LLM]<br/>Generation of a pair of atomic US with functional and non-functional requirements, a full set of edge cases, identification of integration risks, security restrictions, and collection of all artifacts in SDD."]:::container
+
+    end 
+
+    gateway --> intake --> retriever --> brief --> brief_critic --> hitl
+    hitl -->|brief + pattern_refs +anti_patterns +code_context| adapt --> coherence --> sdd
+    intent_mem <--> retriever
+    coherence --> intent_mem
+    applic --> coherence
+    hitl -->|approved_brief_bundle| applic
+    hitl --> intake
+    hitl <--> coherence
+    
+    style group_internal_0 stroke:#555,stroke-dasharray: 5 5,fill:#f9f9f9,fill-opacity:0.8;
+    style group_internal_1 stroke:#555,stroke-dasharray: 5 5,fill:#f9f9f9,fill-opacity:0.8;
