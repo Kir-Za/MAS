@@ -9,7 +9,7 @@ flowchart TD
         scheduler["📋Planner<br/>[System]<br/>"]:::system
         direction TB
         subgraph group_internal_1[" "]
-            prepare["Primary processing<br/>[LLM,LangGraph,Redis]<br/>Determining the type of document, whether a full copy is available in the database, and evaluating its quality."]:::container
+            prepare["Primary processing<br/>[LLM,LangGraph,Redis]<br/>Determining the type of document's content, whether a full copy is available in the database, and evaluating its quality."]:::container
             hitl["👤 HITL service<br/>[Mattermost, IDE]<br/>Approvals, risk management"]:::container
             chunking["Chunking<br/>[LLM,LangGraph,BGE]<br/>Chunking, duplicate checking, metadata generation, enrichment, and vectorization."]:::container
             writer["Writer<br/>[LangGraph,Qdrant]<br/>Recording data based on the chunk's lifecycle."]:::container
