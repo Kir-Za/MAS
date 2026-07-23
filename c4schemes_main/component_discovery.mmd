@@ -10,8 +10,10 @@ flowchart TD
 
         subgraph group_internal_1["🔍 Discovery service"]
             intake["🎯 Intake Normalizer<br/>[LangGraph, LLM]<br/>Highlight the intent, entity, and context of the request, and check if the task has duplicate sessions."]:::container
-            retriever["🔍 Context & Pattern Retriever<br/>[Qdrant, BGE-M3, LLM]<br/>Search by ADR sessions, search by product document, and search by semantic code base."]:::container
+            retriever["🔍 Context & Pattern Retriever<br/>[Qdrant, BGE-M3, LLM, Jira, Git]<br/>Select context sources, retrieve and rerank relevant information, and assemble a traceable evidence bundle."]:::container
             intent_mem["🧠 Intent Memory<br/>[Redis + Qdrant]<br/>Session RAM is formed from the history of recent user interactions, successful solutions to similar tasks in the product history, and user patterns."]:::container
+            decision["🔀 Discovery Decision Gate<br/>[LangGraph, LLM]<br/>Choose the next action from normalized intent and evidence: answer now, ask for clarification, or build a brief."]:::container
+            answerer["💬 Knowledge Answerer<br/>[LLM, RAG]<br/>Continue the conversation with a grounded answer from the evidence bundle, include source references, and abstain when evidence is insufficient."]:::container
             brief["📰 Brief engine (N candidate)<br/>[LLM, LangGraph]<br/>Formulating several variants of brief descriptions with different accents. The boundaries of applicability should be defined for each one."]:::container
             brief_critic["⚖️ Brief Selector/Critic<br/>[LLM, LangGraph]<br/>Comparative evaluation of candidates based on criteria (value clarity, retrieval context compliance, and absence of conflicts with anti-patterns); synthesis of the final version (which may combine elements from different candidates, Mixture-of-Agents style); and recording the rationale for the audit selection."]:::container
             hitl["👤 HITL service<br/>[Mattermost, IDE]<br/>Approvals, risk management"]:::container
@@ -24,13 +26,24 @@ flowchart TD
 
     end 
 
-    gateway --> intake --> retriever --> brief --> brief_critic --> hitl
-    hitl -->|brief + pattern_refs +anti_patterns +code_context| adapt --> coherence --> sdd
+    gateway --> intake --> retriever
+    retriever -->|evidence_bundle| decision
+
+    decision -->|direct_answer, no Brief/SDD| answerer
+    answerer -->|answer + sources| gateway
+    answerer -->|conversation state + source refs| intent_mem
+    answerer -->|insufficient evidence| hitl
+    decision -->|clarify| hitl
+    decision -->|build brief| brief --> brief_critic --> hitl
+
+    hitl -->|brief + pattern_refs + anti_patterns + code_context| adapt --> coherence --> sdd
     intent_mem <--> retriever
+    intake <--> intent_mem
+    decision --> intent_mem
     coherence --> intent_mem
     applic --> coherence
     hitl -->|approved_brief_bundle| applic
-    hitl --> intake
+    hitl -->|clarification| intake
     hitl <--> coherence
     
     style group_internal_0 stroke:#555,stroke-dasharray: 5 5,fill:#f9f9f9,fill-opacity:0.8;
