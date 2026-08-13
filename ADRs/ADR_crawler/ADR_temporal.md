@@ -124,7 +124,7 @@ version_context:
 
 ```text
 latest_allowed_source_revision:
-  source_latest_known            -- по Source Snapshot/cursor (ADR-006)
+  source_latest_known            -- по Source Snapshot/cursor
   ingestion_latest_processed
 ```
 
