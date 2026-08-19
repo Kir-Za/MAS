@@ -24,8 +24,7 @@ Confluence page, Jira issue, Git branch, Git commit и code entity — разн�
 
 ```text
 CONFIRMED_BY_RULE    — evidence критерии;
-CONFIRMED_BY_SOURCE  — источник сам предоставляет устойчивый идентификатор
-                        непрерывности объекта (объекты в Confluence при отсутствии конфликтов по копиям содержимого страниц);
+CONFIRMED_BY_SOURCE  — источник сам предоставляет устойчивый идентификатор непрерывности объекта (объекты в Confluence при отсутствии конфликтов по копиям содержимого страниц);
 AMBIGUOUS            — нет возможности определить статус, сделать вывод о принадлежности к entitiy_uid;
 CONFIRMED_BY_HITL    — подтверждено вручную после AMBIGUOUS.
 ```
@@ -139,6 +138,7 @@ entity_revision_observation:
                             -- с хешем payload для проверки идентичности
                             -- при ресинхронизации)
   provenance
+  is_initial_baseline
 ```
 
 Каждое появление состояния создаёт новую observation-запись; несколько observation для одной `entity_version_id` (revert, повторный crawl, параллельный scope) — норма.

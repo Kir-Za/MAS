@@ -48,17 +48,24 @@ Snapshot живёт **только до завершения обработки*
 ### Manifest и хранение
 
 Manifest это оглавление snapshot'а. Содержит: 
-- `snapshot_id`, 
-- `source`, 
-- `coverage`,
-- список объектов, 
-- `source revision` каждого,
-- cursor до/после, 
-- `observed_at`,
-- `completeness_status`, 
-- ошибки, 
-- checksum, 
-- ссылки на raw payload. 
+- `snapshot_id`
+- `source_system`
+- `source_scope`
+- `coverage`
+- `completeness_status`
+- `observed_at`
+- `cursor_before`               — позиция cursor до получения
+- `cursor_after`                — позиция cursor после получения
+- `objects`
+- `errors`                      — ошибки connector'а при получении
+- `manifest_checksum`           — checksum самого manifest'а
+
+Переменная `objects` имеет следующую структуру:
+- `source_object_id`            — file_path, page_id, issue_key
+- `source_revision_id`          — коммит, версия страницы, changelog ID
+- `object_type`                 — page | issue | code_file | attachment
+- `raw_payload_ref`             — ссылка на raw payload в object storage
+- `raw_payload_checksum`        — checksum конкретного payload
 
 Manifest **хранится дольше** чем snapshot — используется для обнаружения удалённых сущностей путём сравнения со следующим manifest'ом.
 
