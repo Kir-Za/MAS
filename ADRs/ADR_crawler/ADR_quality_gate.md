@@ -1,4 +1,4 @@
-# ADR-009: Quality Gate для входных данных
+# ADR Quality Gate для входных данных
 
 **Статус:** Предложен
 
@@ -52,7 +52,7 @@ entity_version_id       — может отсутствовать
 | AMBIGUOUS | структурно неоднозначный контент | QUARANTINED |
 | UNSUPPORTED | нет extractor'а | REJECTED |
 | FAILED | source content недоступен | REJECTED |
-| FAILED | source content доступен, extraction failed | PASS (downstream пропущен) |
+| FAILED | source content доступен, extraction failed | REJECTED (downstream пропущен) |
 
 
 **Ключевое различие для `processing_status` = `FAILED`:**
